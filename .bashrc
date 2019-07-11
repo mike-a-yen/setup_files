@@ -56,10 +56,15 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+# label git branch on prompt
+parse_git_branch() {
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/^* \(.*\)/(branch: \1)/'
+}
+
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\e[0;32m\]\$(parse_git_branch)\[\e[m\]$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\[\e[0;32m\]\$(parse_git_branch)\[\e[m\]$ '
 fi
 unset color_prompt force_color_prompt
 
@@ -71,6 +76,8 @@ xterm*|rxvt*)
 *)
     ;;
 esac
+
+PS1="${debian_chroot:+($debian_chroot)}\[\e[01;32m\]\u@\h:\[\e[m\]\[\e[01;34m\]\w \[\e[m\]\[\e[0;32m\]\$(parse_git_branch)\[\e[m\]$ "
 
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
@@ -116,18 +123,20 @@ if ! shopt -oq posix; then
   fi
 fi
 
-# added by Anaconda3 4.3.0 installer
-export PATH="/home/mayen/anaconda3/bin:$PATH"
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+__conda_setup="$('/home/myen/miniconda3/bin/conda' 'shell.bash' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/myen/miniconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/myen/miniconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/myen/miniconda3/bin:$PATH"
+    fi
+fi
+unset __conda_setup
+# <<< conda initialize <<<
 
-# added by me
-alias emacs="emacs -nw"
-export PATH="$PATH:/usr/local/cuda-8.0/bin"
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda-8.0/lib64"
-export JAVA_HOME="/usr/lib/jvm/default-java"
-
-# label git branch on prompt
-parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/^* \(.*\)/(branch: \1)/'
-}
-
-PS1="\[\e[0;34m\]\u:\[\e[m\]\[\e[0;36m\]\W \[\e[m\]\[\e[0;32m\]\$(parse_git_branch)\[\e[m\]$ "
+alias nvidia="watch -n 0.5 nvidia-smi"
+export PYTHONPATH=.
