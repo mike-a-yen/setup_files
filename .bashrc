@@ -140,3 +140,10 @@ unset __conda_setup
 
 alias nvidia="watch -n 0.5 nvidia-smi"
 export PYTHONPATH=.
+atomio () {
+    for fname in $@
+    do
+	echo "rmate $fname"
+	rmate $fname
+    done
+    }
